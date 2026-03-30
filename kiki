@@ -1,4 +1,4 @@
--- ===================== ZIZI PANEL V2.1 (FIXED) =====================
+-- ===================== ZIZI PANEL V2.1 (INTEGRAL REBUILT) =====================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -10,7 +10,7 @@ local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- ===================== SETTINGS & ÉTAT =====================
+-- ===================== ÉTAT & SETTINGS =====================
 local KEYBIND = Enum.KeyCode.P
 local State = {
     Speed = 16,
@@ -30,71 +30,94 @@ local State = {
     HealthBar = false,
     ESPRange = 500,
     SpamChat = false,
-    FakeAdmin = false,
 }
 
--- ===================== COULEURS =====================
 local C = {
     BG       = Color3.fromRGB(30, 30, 30),
     BG2      = Color3.fromRGB(26, 26, 26),
-    BG3      = Color3.fromRGB(37, 37, 37),
     Surface  = Color3.fromRGB(42, 42, 42),
-    Border   = Color3.fromRGB(50, 50, 50),
     Blue     = Color3.fromRGB(74, 158, 255),
     White    = Color3.fromRGB(220, 220, 220),
     Muted    = Color3.fromRGB(100, 100, 100),
     Red      = Color3.fromRGB(231, 76, 60),
-    Green    = Color3.fromRGB(39, 174, 96),
     Toggle_ON  = Color3.fromRGB(74, 158, 255),
     Toggle_OFF = Color3.fromRGB(60, 60, 60),
 }
 
--- ===================== GUI BASE =====================
+-- ===================== INTERFACE (GUI) =====================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ZiziPanel"
+ScreenGui.Name = "ZiziPanel_Original"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+if gethui then ScreenGui.Parent = gethui() else ScreenGui.Parent = game:GetService("CoreGui") end
 
--- Parentage sécurisé
-if gethui then
-    ScreenGui.Parent = gethui()
-elseif game:GetService("CoreGui") then
-    pcall(function() ScreenGui.Parent = game:GetService("CoreGui") end)
-end
-if not ScreenGui.Parent then
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
-
--- ===================== FRAME PRINCIPALE =====================
 local Main = Instance.new("Frame")
 Main.Size = UDim2.new(0, 400, 0, 500)
 Main.Position = UDim2.new(0.5, -200, 0.5, -250)
 Main.BackgroundColor3 = C.BG
 Main.BorderSizePixel = 0
-Main.ClipsDescendants = true
 Main.Parent = ScreenGui
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
 
+-- Titlebar & Logo (Ton design original)
 local Titlebar = Instance.new("Frame")
 Titlebar.Size = UDim2.new(1, 0, 0, 36)
 Titlebar.BackgroundColor3 = C.BG2
-Titlebar.BorderSizePixel = 0
 Titlebar.Parent = Main
 
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Text = "Zizi Panel"
-TitleLabel.Size = UDim2.new(1, 0, 1, 0)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.TextColor3 = C.Muted
-TitleLabel.TextSize = 13
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.Parent = Titlebar
-
--- Petits points de déco (style Mac)
 for i, col in ipairs({Color3.fromRGB(255,95,87), Color3.fromRGB(254,188,46), Color3.fromRGB(40,200,64)}) do
     local dot = Instance.new("Frame")
-    dot.Size = UDim2.new(0, 12, 0, 12)
-    dot.Position = UDim2.new(0, 8 + (i-1)*16, 0.5, -6)
+    dot.Size = UDim2.new(0, 10, 0, 10)
+    dot.Position = UDim2.new(0, 8 + (i-1)*15, 0.5, -5)
     dot.BackgroundColor3 = col
     dot.BorderSizePixel = 0
-    dot.Parent = Title
+    dot.Parent = Titlebar
+    Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+end
+
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 60)
+Header.Position = UDim2.new(0, 0, 0, 36)
+Header.BackgroundColor3 = C.BG
+Header.Parent = Main
+
+local LogoBox = Instance.new("Frame")
+LogoBox.Size = UDim2.new(0, 48, 0, 48)
+LogoBox.Position = UDim2.new(0, 14, 0.5, -24)
+LogoBox.BackgroundColor3 = C.BG2
+LogoBox.Parent = Header
+Instance.new("UICorner", LogoBox).CornerRadius = UDim.new(0, 8)
+
+local LogoText = Instance.new("TextLabel")
+LogoText.Text = "ZIZI"
+LogoText.Size = UDim2.new(1,0,1,0)
+LogoText.TextColor3 = C.White
+LogoText.Font = Enum.Font.GothamBold
+LogoText.BackgroundTransparency = 1
+LogoText.Parent = LogoBox
+
+-- Onglets
+local TabBar = Instance.new("Frame")
+TabBar.Size = UDim2.new(1, 0, 0, 32)
+TabBar.Position = UDim2.new(0, 0, 0, 96)
+TabBar.BackgroundColor3 = C.BG2
+TabBar.Parent = Main
+
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(1, 0, 1, -128)
+TabContainer.Position = UDim2.new(0, 0, 0, 128)
+TabContainer.BackgroundTransparency = 1
+TabContainer.Parent = Main
+
+local TabNames = {"Player", "Game", "Troll", "ESP", "Other"}
+local TabPages = {}
+local TabButtons = {}
+
+local function SwitchTab(name)
+    for _, p in pairs(TabPages) do p.Visible = false end
+    TabPages[name].Visible = true
+end
+
+for i, name in ipairs(TabNames) do
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 400/#TabNames, 1, 0)
+    btn
