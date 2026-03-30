@@ -11,7 +11,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
 -- ===================== SETTINGS =====================
-local KEYBIND = Enum.KeyCode.K  -- Touche pour ouvrir/fermer le panel
+local KEYBIND = Enum.KeyCode.p  -- Touche pour ouvrir/fermer le panel
 
 -- ===================== ÉTAT =====================
 local State = {
