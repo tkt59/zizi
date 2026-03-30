@@ -1,1 +1,1 @@
-loadstring(game"https://raw.githubusercontent.com/tkt59/zizi/refs/heads/main/kiki"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/tkt59/zizi/refs/heads/main/kiki"))()
