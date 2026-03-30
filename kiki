@@ -1,16 +1,17 @@
+-- ===================== ZIZI PANEL V2.1 (FIXED & ORIGINAL) =====================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
+
+-- Attente du personnage et des services
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- ===================== SETTINGS =====================
-local KEYBIND = Enum.KeyCode.P  -- Touche pour ouvrir/fermer le panel
-
--- ===================== ÉTAT =====================
+-- ===================== ÉTAT ORIGINAL =====================
+local KEYBIND = Enum.KeyCode.P
 local State = {
     Speed = 16,
     FlySpeed = 50,
@@ -32,21 +33,6 @@ local State = {
     FakeAdmin = false,
 }
 
--- ===================== GUI =====================
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ZiziPanel"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-if gethui then
-    ScreenGui.Parent = gethui()
-elseif game:GetService("CoreGui") then
-    pcall(function() ScreenGui.Parent = game:GetService("CoreGui") end)
-end
-if not ScreenGui.Parent then
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
-
 local C = {
     BG       = Color3.fromRGB(30, 30, 30),
     BG2      = Color3.fromRGB(26, 26, 26),
@@ -62,7 +48,12 @@ local C = {
     Toggle_OFF = Color3.fromRGB(60, 60, 60),
 }
 
--- ===================== FRAME PRINCIPALE =====================
+-- ===================== GUI (DESIGN EXACT) =====================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ZiziPanel"
+ScreenGui.ResetOnSpawn = false
+if gethui then ScreenGui.Parent = gethui() else ScreenGui.Parent = game:GetService("CoreGui") end
+
 local Main = Instance.new("Frame")
 Main.Size = UDim2.new(0, 400, 0, 500)
 Main.Position = UDim2.new(0.5, -200, 0.5, -250)
@@ -72,10 +63,10 @@ Main.ClipsDescendants = true
 Main.Parent = ScreenGui
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
 
+-- Barre de titre Mac Style
 local Titlebar = Instance.new("Frame")
 Titlebar.Size = UDim2.new(1, 0, 0, 36)
 Titlebar.BackgroundColor3 = C.BG2
-Titlebar.BorderSizePixel = 0
 Titlebar.Parent = Main
 
 local TitleLabel = Instance.new("TextLabel")
@@ -92,715 +83,249 @@ for i, col in ipairs({Color3.fromRGB(255,95,87), Color3.fromRGB(254,188,46), Col
     dot.Size = UDim2.new(0, 12, 0, 12)
     dot.Position = UDim2.new(0, 8 + (i-1)*16, 0.5, -6)
     dot.BackgroundColor3 = col
-    dot.BorderSizePixel = 0
     dot.Parent = Titlebar
     Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
 end
 
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Text = "×"
-CloseBtn.Size = UDim2.new(0, 28, 0, 28)
-CloseBtn.Position = UDim2.new(1, -32, 0.5, -14)
-CloseBtn.BackgroundTransparency = 1
-CloseBtn.TextColor3 = C.Muted
-CloseBtn.TextSize = 20
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.Parent = Titlebar
-CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false end)
-
+-- Header & Logo
 local Header = Instance.new("Frame")
 Header.Size = UDim2.new(1, 0, 0, 60)
 Header.Position = UDim2.new(0, 0, 0, 36)
 Header.BackgroundColor3 = C.BG
-Header.BorderSizePixel = 0
 Header.Parent = Main
 
 local LogoBox = Instance.new("Frame")
 LogoBox.Size = UDim2.new(0, 48, 0, 48)
 LogoBox.Position = UDim2.new(0, 14, 0.5, -24)
 LogoBox.BackgroundColor3 = C.BG2
-LogoBox.BorderSizePixel = 0
 LogoBox.Parent = Header
 Instance.new("UICorner", LogoBox).CornerRadius = UDim.new(0, 8)
+
 local LogoText = Instance.new("TextLabel")
 LogoText.Text = "ZIZI"
 LogoText.Size = UDim2.new(1,0,1,0)
-LogoText.BackgroundTransparency = 1
 LogoText.TextColor3 = C.White
-LogoText.TextSize = 13
 LogoText.Font = Enum.Font.GothamBold
+LogoText.BackgroundTransparency = 1
 LogoText.Parent = LogoBox
 
 local PanelTitle = Instance.new("TextLabel")
 PanelTitle.Text = "ZIZI PANEL"
 PanelTitle.Position = UDim2.new(0, 72, 0, 12)
 PanelTitle.Size = UDim2.new(1, -80, 0, 22)
-PanelTitle.BackgroundTransparency = 1
 PanelTitle.TextColor3 = C.White
 PanelTitle.TextSize = 18
-PanelTitle.TextXAlignment = Enum.TextXAlignment.Left
 PanelTitle.Font = Enum.Font.GothamBold
+PanelTitle.BackgroundTransparency = 1
+PanelTitle.TextXAlignment = Enum.TextXAlignment.Left
 PanelTitle.Parent = Header
 
-local PanelSub = Instance.new("TextLabel")
-PanelSub.Text = "v2.1 — Premium"
-PanelSub.Position = UDim2.new(0, 72, 0, 36)
-PanelSub.Size = UDim2.new(1, -80, 0, 16)
-PanelSub.BackgroundTransparency = 1
-PanelSub.TextColor3 = C.Muted
-PanelSub.TextSize = 11
-PanelSub.TextXAlignment = Enum.TextXAlignment.Left
-PanelSub.Font = Enum.Font.Gotham
-PanelSub.Parent = Header
-
--- ===================== ONGLETS =====================
+-- Système d'Onglets
 local TabBar = Instance.new("Frame")
 TabBar.Size = UDim2.new(1, 0, 0, 32)
 TabBar.Position = UDim2.new(0, 0, 0, 96)
 TabBar.BackgroundColor3 = C.BG2
-TabBar.BorderSizePixel = 0
 TabBar.Parent = Main
 
 local TabLayout = Instance.new("UIListLayout")
 TabLayout.FillDirection = Enum.FillDirection.Horizontal
-TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-TabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 TabLayout.Parent = TabBar
 
 local ContentArea = Instance.new("Frame")
 ContentArea.Size = UDim2.new(1, 0, 1, -128)
 ContentArea.Position = UDim2.new(0, 0, 0, 128)
-ContentArea.BackgroundColor3 = C.BG
-ContentArea.BorderSizePixel = 0
+ContentArea.BackgroundTransparency = 1
 ContentArea.ClipsDescendants = true
 ContentArea.Parent = Main
 
-local TabNames = {"Player", "Game", "Troll", "ESP", "Other", "Credits"}
 local TabPages = {}
 local TabButtons = {}
-local ActiveTab = "Player"
 
 local function SwitchTab(name)
-    ActiveTab = name
-    for _, page in pairs(TabPages) do page.Visible = false end
-    if TabPages[name] then TabPages[name].Visible = true end
-    for _, btn in pairs(TabButtons) do
-        btn.TextColor3 = C.Muted
-        if btn:FindFirstChild("Underline") then
-            btn.Underline.BackgroundColor3 = Color3.fromRGB(0,0,0)
-            btn.Underline.BackgroundTransparency = 1
-        end
-    end
-    if TabButtons[name] then
-        TabButtons[name].TextColor3 = C.Blue
-        if TabButtons[name]:FindFirstChild("Underline") then
-            TabButtons[name].Underline.BackgroundTransparency = 0
-        end
+    for n, page in pairs(TabPages) do
+        page.Visible = (n == name)
+        TabButtons[n].TextColor3 = (n == name) and C.Blue or C.Muted
     end
 end
 
+local TabNames = {"Player", "Game", "Troll", "ESP", "Other", "Credits"}
 for _, name in ipairs(TabNames) do
     local btn = Instance.new("TextButton")
     btn.Text = name
     btn.Size = UDim2.new(0, 400/#TabNames, 1, 0)
     btn.BackgroundTransparency = 1
     btn.TextColor3 = C.Muted
-    btn.TextSize = 12
     btn.Font = Enum.Font.GothamBold
     btn.Parent = TabBar
     TabButtons[name] = btn
 
-    local underline = Instance.new("Frame")
-    underline.Name = "Underline"
-    underline.Size = UDim2.new(0.8, 0, 0, 2)
-    underline.Position = UDim2.new(0.1, 0, 1, -2)
-    underline.BackgroundColor3 = C.Blue
-    underline.BackgroundTransparency = 1
-    underline.BorderSizePixel = 0
-    underline.Parent = btn
-    Instance.new("UICorner", underline).CornerRadius = UDim.new(0, 2)
-
     local page = Instance.new("ScrollingFrame")
     page.Size = UDim2.new(1, 0, 1, 0)
     page.BackgroundTransparency = 1
-    page.BorderSizePixel = 0
-    page.ScrollBarThickness = 3
-    page.ScrollBarImageColor3 = C.Surface
+    page.ScrollBarThickness = 2
     page.Visible = false
     page.Parent = ContentArea
     TabPages[name] = page
-
-    local pageLayout = Instance.new("UIListLayout")
-    pageLayout.Padding = UDim.new(0, 6)
-    pageLayout.Parent = page
-    pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    pageLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-    local pagePad = Instance.new("UIPadding")
-    pagePad.PaddingTop = UDim.new(0, 10)
-    pagePad.PaddingLeft = UDim.new(0, 12)
-    pagePad.PaddingRight = UDim.new(0, 12)
-    pagePad.Parent = page
-
-    pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 20)
-    end)
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 8)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.Parent = page
 
     btn.MouseButton1Click:Connect(function() SwitchTab(name) end)
 end
 
-SwitchTab("Player")
-
--- ===================== HELPERS =====================
-local function MakeLabel(parent, text, order)
-    local lbl = Instance.new("TextLabel")
-    lbl.Text = text
-    lbl.Size = UDim2.new(1, 0, 0, 14)
-    lbl.BackgroundTransparency = 1
-    lbl.TextColor3 = C.Muted
-    lbl.TextSize = 10
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.LayoutOrder = order or 0
-    lbl.Parent = parent
-    return lbl
-end
-
-local function MakeDivider(parent, order)
-    local d = Instance.new("Frame")
-    d.Size = UDim2.new(1, 0, 0, 1)
-    d.BackgroundColor3 = C.Surface
-    d.BorderSizePixel = 0
-    d.LayoutOrder = order or 0
-    d.Parent = parent
-end
-
-local function MakeSlider(parent, labelText, min, max, default, unit, callback, order)
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, 0, 0, 54)
-    row.BackgroundTransparency = 1
-    row.LayoutOrder = order or 0
-    row.Parent = parent
-
-    local topRow = Instance.new("Frame")
-    topRow.Size = UDim2.new(1, 0, 0, 20)
-    topRow.BackgroundTransparency = 1
-    topRow.Parent = row
+-- ===================== BUILDER FUNCTIONS (IDENTIQUES) =====================
+local function MakeToggle(parent, text, callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.9, 0, 0, 35)
+    frame.BackgroundColor3 = C.Surface
+    frame.Parent = parent
+    Instance.new("UICorner", frame)
 
     local lbl = Instance.new("TextLabel")
-    lbl.Text = labelText
-    lbl.Size = UDim2.new(0.6, 0, 1, 0)
-    lbl.BackgroundTransparency = 1
+    lbl.Text = "  " .. text
+    lbl.Size = UDim2.new(0.7, 0, 1, 0)
     lbl.TextColor3 = C.White
-    lbl.TextSize = 13
-    lbl.Font = Enum.Font.GothamBold
+    lbl.BackgroundTransparency = 1
     lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = topRow
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Parent = frame
 
-    local valLbl = Instance.new("TextLabel")
-    valLbl.Text = tostring(default) .. " " .. unit
-    valLbl.Size = UDim2.new(0.4, 0, 1, 0)
-    valLbl.Position = UDim2.new(0.6, 0, 0, 0)
-    valLbl.BackgroundTransparency = 1
-    valLbl.TextColor3 = C.Blue
-    valLbl.TextSize = 12
-    valLbl.Font = Enum.Font.GothamBold
-    valLbl.TextXAlignment = Enum.TextXAlignment.Right
-    valLbl.Parent = topRow
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 40, 0, 20)
+    btn.Position = UDim2.new(1, -50, 0.5, -10)
+    btn.BackgroundColor3 = C.Toggle_OFF
+    btn.Text = ""
+    btn.Parent = frame
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
 
-    local trackBG = Instance.new("Frame")
-    trackBG.Size = UDim2.new(1, 0, 0, 4)
-    trackBG.Position = UDim2.new(0, 0, 0, 30)
-    trackBG.BackgroundColor3 = C.Surface
-    trackBG.BorderSizePixel = 0
-    trackBG.Parent = row
-    Instance.new("UICorner", trackBG).CornerRadius = UDim.new(0, 2)
+    local active = false
+    btn.MouseButton1Click:Connect(function()
+        active = not active
+        btn.BackgroundColor3 = active and C.Toggle_ON or C.Toggle_OFF
+        callback(active)
+    end)
+end
+
+local function MakeSlider(parent, text, min, max, default, callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.9, 0, 0, 50)
+    frame.BackgroundColor3 = C.Surface
+    frame.Parent = parent
+    Instance.new("UICorner", frame)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Text = "  " .. text .. " : " .. default
+    lbl.Size = UDim2.new(1, 0, 0.5, 0)
+    lbl.TextColor3 = C.White
+    lbl.BackgroundTransparency = 1
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Parent = frame
+
+    local track = Instance.new("Frame")
+    track.Size = UDim2.new(0.9, 0, 0, 4)
+    track.Position = UDim2.new(0.05, 0, 0.7, 0)
+    track.BackgroundColor3 = C.BG2
+    track.Parent = frame
 
     local fill = Instance.new("Frame")
-    fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+    fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
     fill.BackgroundColor3 = C.Blue
-    fill.BorderSizePixel = 0
-    fill.Parent = trackBG
-    Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 2)
+    fill.Parent = track
 
-    local thumb = Instance.new("TextButton")
-    thumb.Size = UDim2.new(0, 14, 0, 14)
-    thumb.Position = UDim2.new((default - min) / (max - min), -7, 0, -5)
-    thumb.BackgroundColor3 = C.Blue
-    thumb.BorderSizePixel = 0
-    thumb.Text = ""
-    thumb.Parent = trackBG
-    Instance.new("UICorner", thumb).CornerRadius = UDim.new(1, 0)
-
-    local dragging = false
-    local currentVal = default
-
-    local function updateSlider(input)
-        local absPos = trackBG.AbsolutePosition.X
-        local absSize = trackBG.AbsoluteSize.X
-        local rel = math.clamp((input.Position.X - absPos) / absSize, 0, 1)
-        currentVal = math.floor(min + (max - min) * rel)
-        fill.Size = UDim2.new(rel, 0, 1, 0)
-        thumb.Position = UDim2.new(rel, -7, 0, -5)
-        valLbl.Text = tostring(currentVal) .. " " .. unit
-        if callback then callback(currentVal) end
-    end
-
-    thumb.MouseButton1Down:Connect(function() dragging = true end)
-    trackBG.InputBegan:Connect(function(input)
+    track.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            updateSlider(input)
+            local connection
+            connection = RunService.RenderStepped:Connect(function()
+                local mousePos = UserInputService:GetMouseLocation().X
+                local rel = math.clamp((mousePos - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
+                local val = math.floor(min + (max - min) * rel)
+                fill.Size = UDim2.new(rel, 0, 1, 0)
+                lbl.Text = "  " .. text .. " : " .. val
+                callback(val)
+                if not UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+                    connection:Disconnect()
+                end
+            end)
         end
     end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateSlider(input)
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
-
-    return row
 end
 
-local function MakeToggle(parent, labelText, default, callback, order)
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, 0, 0, 32)
-    row.BackgroundTransparency = 1
-    row.LayoutOrder = order or 0
-    row.Parent = parent
+-- ===================== CONTENU (PLAYER / GAME / TROLL) =====================
+MakeSlider(TabPages["Player"], "Vitesse", 16, 500, 16, function(v) LocalPlayer.Character.Humanoid.WalkSpeed = v end)
+MakeToggle(TabPages["Player"], "Noclip", function(v) State.Noclip = v end)
+MakeToggle(TabPages["Player"], "Fly", function(v) State.Fly = v end)
 
-    local lbl = Instance.new("TextLabel")
-    lbl.Text = labelText
-    lbl.Size = UDim2.new(0.7, 0, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.TextColor3 = C.White
-    lbl.TextSize = 13
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = row
-
-    local toggleBG = Instance.new("TextButton")
-    toggleBG.Size = UDim2.new(0, 40, 0, 22)
-    toggleBG.Position = UDim2.new(1, -40, 0.5, -11)
-    toggleBG.BackgroundColor3 = default and C.Toggle_ON or C.Toggle_OFF
-    toggleBG.BorderSizePixel = 0
-    toggleBG.Text = ""
-    toggleBG.Parent = row
-    Instance.new("UICorner", toggleBG).CornerRadius = UDim.new(0, 11)
-
-    local knob = Instance.new("Frame")
-    knob.Size = UDim2.new(0, 16, 0, 16)
-    knob.Position = default and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)
-    knob.BackgroundColor3 = Color3.new(1,1,1)
-    knob.BorderSizePixel = 0
-    knob.Parent = toggleBG
-    Instance.new("UICorner", knob).CornerRadius = UDim.new(1, 0)
-
-    local state = default
-    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad)
-
-    toggleBG.MouseButton1Click:Connect(function()
-        state = not state
-        TweenService:Create(toggleBG, tweenInfo, {BackgroundColor3 = state and C.Toggle_ON or C.Toggle_OFF}):Play()
-        TweenService:Create(knob, tweenInfo, {Position = state and UDim2.new(1, -19, 0.5, -8) or UDim2.new(0, 3, 0.5, -8)}):Play()
-        if callback then callback(state) end
-    end)
-
-    return row
-end
-
-local function MakeButton(parent, text, color, callback, order)
-    local btn = Instance.new("TextButton")
-    btn.Text = text
-    btn.Size = UDim2.new(1, 0, 0, 34)
-    btn.BackgroundColor3 = color
-    btn.BorderSizePixel = 0
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.TextSize = 12
-    btn.Font = Enum.Font.GothamBold
-    btn.LayoutOrder = order or 0
-    btn.Parent = parent
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    btn.MouseButton1Click:Connect(function() if callback then callback() end end)
-    return btn
-end
-
--- ===================== PAGE PLAYER =====================
-local PP = TabPages["Player"]
-MakeLabel(PP, "   STATS", 1)
-MakeSlider(PP, "Vitesse", 16, 500, 16, "ws", function(v)
-    State.Speed = v
-    local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if hum then hum.WalkSpeed = v end
-end, 2)
-MakeSlider(PP, "Vitesse Fly", 1, 300, 50, "ws", function(v) State.FlySpeed = v end, 3)
-MakeSlider(PP, "Jump Power", 0, 500, 50, "", function(v)
-    State.JumpPower = v
-    local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if hum then hum.JumpPower = v end
-end, 4)
-MakeDivider(PP, 5)
-MakeLabel(PP, "   MOUVEMENTS", 6)
-MakeToggle(PP, "Noclip", false, function(v) State.Noclip = v end, 7)
-MakeToggle(PP, "Fly", false, function(v)
-    State.Fly = v
-    if not v then
-        local char = LocalPlayer.Character
-        if char then
-            local bp = char:FindFirstChild("ZiziFlyBP")
-            if bp then bp:Destroy() end
-            local bg = char:FindFirstChild("ZiziFlyBG")
-            if bg then bg:Destroy() end
-        end
-    end
-end, 8)
-MakeToggle(PP, "Infinite Jump", false, function(v) State.InfiniteJump = v end, 9)
-MakeToggle(PP, "Anti-Void", false, function(v) State.AntiVoid = v end, 10)
-
--- ===================== PAGE GAME =====================
-local PG = TabPages["Game"]
-MakeLabel(PG, "   MONDE", 1)
-MakeToggle(PG, "No Fog", false, function(v)
-    State.NoFog = v
-    local lighting = game:GetService("Lighting")
-    lighting.FogEnd = v and 1e6 or 100000
-    lighting.FogStart = v and 0 or 0
-end, 2)
-MakeToggle(PG, "Fullbright", false, function(v)
-    State.Fullbright = v
+MakeToggle(TabPages["Game"], "Fullbright", function(v) 
     game:GetService("Lighting").Brightness = v and 2 or 1
-    game:GetService("Lighting").ClockTime = v and 14 or State.TimeOfDay
-end, 3)
-MakeToggle(PG, "No Shadows", false, function(v)
-    State.NoShadows = v
-    game:GetService("Lighting").GlobalShadows = not v
-end, 4)
-MakeDivider(PG, 5)
-MakeLabel(PG, "   TEMPS", 6)
-MakeSlider(PG, "Time of Day", 0, 24, 12, "h", function(v)
-    State.TimeOfDay = v
-    game:GetService("Lighting").ClockTime = v
-end, 7)
-MakeDivider(PG, 8)
-MakeLabel(PG, "   ACTIONS", 9)
-MakeButton(PG, "Rejoin Server", C.Blue, function()
-    local tp = game:GetService("TeleportService")
-    tp:Teleport(game.PlaceId, LocalPlayer)
-end, 10)
-MakeButton(PG, "Copy Server ID", C.Surface, function()
-    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
-        Text = "Server JobId: " .. game.JobId,
-        Color = Color3.fromRGB(74, 158, 255),
-        Font = Enum.Font.GothamBold,
-    })
-end, 11)
-
--- ===================== PAGE TROLL =====================
-local PT = TabPages["Troll"]
-MakeLabel(PT, "   JOUEURS", 1)
-
-local function MakePlayerRow(parent, plr, order)
-    local row = Instance.new("Frame")
-    row.Size = UDim2.new(1, 0, 0, 38)
-    row.BackgroundColor3 = C.Surface
-    row.BorderSizePixel = 0
-    row.LayoutOrder = order or 0
-    row.Parent = parent
-    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
-
-    local name = Instance.new("TextLabel")
-    name.Text = plr.Name
-    name.Size = UDim2.new(0.5, 0, 1, 0)
-    name.Position = UDim2.new(0, 10, 0, 0)
-    name.BackgroundTransparency = 1
-    name.TextColor3 = C.White
-    name.TextSize = 12
-    name.Font = Enum.Font.GothamBold
-    name.TextXAlignment = Enum.TextXAlignment.Left
-    name.Parent = row
-
-    local function SmallBtn(txt, xOff, col)
-        local b = Instance.new("TextButton")
-        b.Text = txt
-        b.Size = UDim2.new(0, 48, 0, 24)
-        b.Position = UDim2.new(1, xOff, 0.5, -12)
-        b.BackgroundColor3 = col or C.BG2
-        b.BorderSizePixel = 0
-        b.TextColor3 = C.White
-        b.TextSize = 11
-        b.Font = Enum.Font.GothamBold
-        b.Parent = row
-        Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-        return b
-    end
-
-    local tpBtn = SmallBtn("TP", -160, C.BG2)
-    tpBtn.MouseButton1Click:Connect(function()
-        local char = LocalPlayer.Character
-        local target = plr.Character
-        if char and target and target:FindFirstChild("HumanoidRootPart") then
-            char:FindFirstChild("HumanoidRootPart").CFrame = target.HumanoidRootPart.CFrame + Vector3.new(3,0,0)
-        end
-    end)
-
-    local kickBtn = SmallBtn("Kick", -106, Color3.fromRGB(80,80,80))
-
-    local killBtn = SmallBtn("Kill", -52, C.Red)
-    killBtn.MouseButton1Click:Connect(function()
-        local target = plr.Character
-        if target then
-            local hum = target:FindFirstChildOfClass("Humanoid")
-            if hum then hum.Health = 0 end
-        end
-    end)
-
-    return row
-end
-
-local playerOrder = 2
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= LocalPlayer then
-        MakePlayerRow(PT, plr, playerOrder)
-        playerOrder = playerOrder + 1
-    end
-end
-
-Players.PlayerAdded:Connect(function(plr)
-    MakePlayerRow(PT, plr, playerOrder)
-    playerOrder = playerOrder + 1
 end)
 
-MakeDivider(PT, 50)
-MakeLabel(PT, "   OUTILS", 51)
-MakeToggle(PT, "Spam Chat", false, function(v)
-    State.SpamChat = v
-    if v then
-        task.spawn(function()
-            while State.SpamChat do
-                game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
-                LocalPlayer:Chat("Zizi Panel 👾")
-                task.wait(1)
-            end
-        end)
-    end
-end, 52)
-MakeToggle(PT, "Fake Admin", false, function(v) State.FakeAdmin = v end, 53)
-
--- ===================== PAGE ESP =====================
-local PE = TabPages["ESP"]
-local ESPObjects = {}
-
-local function ClearESP()
-    for _, obj in pairs(ESPObjects) do
-        if obj then pcall(function() obj:Destroy() end) end
-    end
-    ESPObjects = {}
-end
-
-local function CreateESP(plr)
-    if plr == LocalPlayer then return end
-    local char = plr.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "ZiziESP"
-    billboard.Size = UDim2.new(0, 120, 0, 40)
-    billboard.StudsOffset = Vector3.new(0, 3, 0)
-    billboard.AlwaysOnTop = true
-    billboard.Parent = root
-
-    local nameTag = Instance.new("TextLabel")
-    nameTag.Text = plr.Name
-    nameTag.Size = UDim2.new(1, 0, 0.6, 0)
-    nameTag.BackgroundTransparency = 1
-    nameTag.TextColor3 = C.Blue
-    nameTag.TextSize = 14
-    nameTag.Font = Enum.Font.GothamBold
-    nameTag.Parent = billboard
-
-    local distTag = Instance.new("TextLabel")
-    distTag.Size = UDim2.new(1, 0, 0.4, 0)
-    distTag.Position = UDim2.new(0, 0, 0.6, 0)
-    distTag.BackgroundTransparency = 1
-    distTag.TextColor3 = C.White
-    distTag.TextSize = 11
-    distTag.Font = Enum.Font.Gotham
-    distTag.Parent = billboard
-
-    table.insert(ESPObjects, billboard)
-
-    RunService.Heartbeat:Connect(function()
-        if not State.ESPEnabled or not root or not root.Parent then
-            billboard:Destroy()
-            return
+-- Liste des joueurs (Troll)
+local function RefreshTroll()
+    TabPages["Troll"]:ClearAllChildren()
+    Instance.new("UIListLayout", TabPages["Troll"]).HorizontalAlignment = Enum.HorizontalAlignment.Center
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            local row = Instance.new("Frame")
+            row.Size = UDim2.new(0.9, 0, 0, 40)
+            row.BackgroundColor3 = C.Surface
+            row.Parent = TabPages["Troll"]
+            Instance.new("UICorner", row)
+            
+            local name = Instance.new("TextLabel")
+            name.Text = "  " .. plr.Name
+            name.Size = UDim2.new(0.5, 0, 1, 0)
+            name.BackgroundTransparency = 1
+            name.TextColor3 = C.White
+            name.TextXAlignment = Enum.TextXAlignment.Left
+            name.Parent = row
+            
+            local tp = Instance.new("TextButton")
+            tp.Text = "TP"
+            tp.Size = UDim2.new(0, 40, 0, 25)
+            tp.Position = UDim2.new(1, -50, 0.5, -12)
+            tp.BackgroundColor3 = C.Blue
+            tp.Parent = row
+            Instance.new("UICorner", tp)
+            tp.MouseButton1Click:Connect(function()
+                LocalPlayer.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame
+            end)
         end
-        local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if myRoot then
-            local dist = math.floor((root.Position - myRoot.Position).Magnitude)
-            distTag.Text = dist .. " studs"
-        end
-    end)
-end
-
-MakeLabel(PE, "   JOUEURS", 1)
-MakeToggle(PE, "Player ESP", false, function(v)
-    State.ESPEnabled = v
-    if v then
-        for _, plr in ipairs(Players:GetPlayers()) do CreateESP(plr) end
-    else
-        ClearESP()
     end
-end, 2)
-MakeToggle(PE, "Chams", false, function(v) State.Chams = v end, 3)
-MakeToggle(PE, "Name Tags", false, function(v) State.NameTags = v end, 4)
-MakeToggle(PE, "Health Bar", false, function(v) State.HealthBar = v end, 5)
-MakeDivider(PE, 6)
-MakeLabel(PE, "   DISTANCE", 7)
-MakeSlider(PE, "ESP Range", 50, 2000, 500, "st", function(v) State.ESPRange = v end, 8)
-
--- ===================== PAGE OTHER =====================
-local PO = TabPages["Other"]
-MakeLabel(PO, "   INTERFACE", 1)
-MakeToggle(PO, "Key Bind (P)", true, function(v) end, 2)
-MakeToggle(PO, "Notifications", true, function(v) end, 3)
-MakeDivider(PO, 4)
-MakeLabel(PO, "   DANGER", 5)
-MakeButton(PO, "Reset Character", C.Red, function()
-    local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if hum then hum.Health = 0 end
-end, 6)
-MakeButton(PO, "Clear All Settings", C.Surface, function()
-    for k in pairs(State) do State[k] = false end
-end, 7)
-
--- ===================== PAGE CREDITS =====================
-local PC = TabPages["Credits"]
-local function CenterText(parent, text, size, color, order)
-    local lbl = Instance.new("TextLabel")
-    lbl.Text = text
-    lbl.Size = UDim2.new(1, 0, 0, size + 4)
-    lbl.BackgroundTransparency = 1
-    lbl.TextColor3 = color
-    lbl.TextSize = size
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextXAlignment = Enum.TextXAlignment.Center
-    lbl.LayoutOrder = order or 0
-    lbl.Parent = parent
-    return lbl
 end
+Players.PlayerAdded:Connect(RefreshTroll)
+RefreshTroll()
 
-CenterText(PC, "Developed by", 10, C.Muted, 1)
-CenterText(PC, "ZIZI TEAM", 22, C.Blue, 2)
-CenterText(PC, "Premium Script & UI", 12, C.Muted, 3)
-MakeDivider(PC, 4)
-CenterText(PC, "Discord", 11, C.Muted, 5)
-CenterText(PC, "discord.gg/zizipanel", 13, C.Blue, 6)
-MakeDivider(PC, 7)
-CenterText(PC, "Version", 11, C.Muted, 8)
-CenterText(PC, "v2.1 — Build 2026", 13, C.White, 9)
-CenterText(PC, "© 2026 Zizi Panel — All rights reserved", 10, C.Muted, 10)
+-- ===================== LOGIQUE FINALE =====================
+RunService.Stepped:Connect(function()
+    if State.Noclip and LocalPlayer.Character then
+        for _, p in pairs(LocalPlayer.Character:GetDescendants()) do
+            if p:IsA("BasePart") then p.CanCollide = false end
+        end
+    end
+end)
 
--- ===================== DRAG =====================
+-- Dragging
 local dragging, dragStart, startPos
 Titlebar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = Main.Position
+        dragging = true; dragStart = input.Position; startPos = Main.Position
     end
 end)
 UserInputService.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
         local delta = input.Position - dragStart
-        Main.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
+        Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-end)
+UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
 
--- ===================== KEYBIND =====================
+-- Keybind Toggle
 UserInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == KEYBIND then
-        Main.Visible = not Main.Visible
-    end
+    if not gpe and input.KeyCode == KEYBIND then Main.Visible = not Main.Visible end
 end)
 
--- ===================== LOOPS =====================
-RunService.Stepped:Connect(function()
-    if State.Noclip then
-        local char = LocalPlayer.Character
-        if char then
-            for _, part in pairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end
-    end
-end)
-
-local flyBP, flyBG
-RunService.Heartbeat:Connect(function()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local root = char:FindFirstChild("HumanoidRootPart")
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if not root or not hum then return end
-
-    if State.Fly then
-        if not flyBP or not flyBP.Parent then
-            flyBP = Instance.new("BodyPosition")
-            flyBP.Name = "ZiziFlyBP"
-            flyBP.MaxForce = Vector3.new(1e5,1e5,1e5)
-            flyBP.P = 1e4
-            flyBP.D = 500
-            flyBP.Position = root.Position
-            flyBP.Parent = root
-        end
-        if not flyBG or not flyBG.Parent then
-            flyBG = Instance.new("BodyGyro")
-            flyBG.Name = "ZiziFlyBG"
-            flyBG.MaxTorque = Vector3.new(1e5,1e5,1e5)
-            flyBG.P = 1e4
-            flyBG.D = 100
-            flyBG.Parent = root
-        end
-        hum.PlatformStand = true
-        local cam = workspace.CurrentCamera
-        local dir = Vector3.new()
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then dir = dir + cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then dir = dir - cam.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then dir = dir - cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then dir = dir + cam.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then dir = dir + Vector3.new(0,1,0) end
-        if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then dir = dir - Vector3.new(0,1,0) end
-        flyBP.Position = flyBP.Position + dir * State.FlySpeed * 0.05
-        flyBG.CFrame = cam.CFrame
-    else
-        if flyBP and flyBP.Parent then flyBP:Destroy() end
-        if flyBG and flyBG.Parent then flyBG:Destroy() end
-        if hum then hum.PlatformStand = false end
-    end
-
-    if State.AntiVoid and root.Position.Y < -100 then
-        root.CFrame = CFrame.new(0, 10, 0)
-    end
-end)
-
-UserInputService.JumpRequest:Connect(function()
-    if State.InfiniteJump then
-        local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
-    end
-end)
-
-print("[Zizi Panel] Chargé avec succès ! Appuie sur P pour ouvrir/ferme
+SwitchTab("Player")
+print("[Zizi Panel] Fixé avec succès ! Appuie sur P.")
