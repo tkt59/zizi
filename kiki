@@ -1,4 +1,4 @@
--- SQL Panel v2.1 | Compatible: Synapse X, KRNL, Fluxus, Solara
+-- Zizi Panel v2.1 | Compatible: Synapse X, KRNL, Fluxus, Solara
 -- Colle ce script dans ton executeur et lance-le
 
 local Players = game:GetService("Players")
@@ -11,7 +11,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
 -- ===================== SETTINGS =====================
-local KEYBIND = Enum.KeyCode.p  -- Touche pour ouvrir/fermer le panel
+local KEYBIND = Enum.KeyCode.P  -- Touche pour ouvrir/fermer le panel
 
 -- ===================== ÉTAT =====================
 local State = {
@@ -37,11 +37,10 @@ local State = {
 
 -- ===================== GUI =====================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "SQLPanel"
+ScreenGui.Name = "ZiziPanel"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Supprime l'ancien panel si existe
 if gethui then
     ScreenGui.Parent = gethui()
 elseif game:GetService("CoreGui") then
@@ -51,7 +50,6 @@ if not ScreenGui.Parent then
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 end
 
--- Couleurs
 local C = {
     BG       = Color3.fromRGB(30, 30, 30),
     BG2      = Color3.fromRGB(26, 26, 26),
@@ -77,7 +75,6 @@ Main.ClipsDescendants = true
 Main.Parent = ScreenGui
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
 
--- Titlebar
 local Titlebar = Instance.new("Frame")
 Titlebar.Size = UDim2.new(1, 0, 0, 36)
 Titlebar.BackgroundColor3 = C.BG2
@@ -85,7 +82,7 @@ Titlebar.BorderSizePixel = 0
 Titlebar.Parent = Main
 
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Text = "SQL Panel"
+TitleLabel.Text = "Zizi Panel"
 TitleLabel.Size = UDim2.new(1, 0, 1, 0)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.TextColor3 = C.Muted
@@ -93,7 +90,6 @@ TitleLabel.TextSize = 13
 TitleLabel.Font = Enum.Font.GothamBold
 TitleLabel.Parent = Titlebar
 
--- Boutons colorés (déco)
 for i, col in ipairs({Color3.fromRGB(255,95,87), Color3.fromRGB(254,188,46), Color3.fromRGB(40,200,64)}) do
     local dot = Instance.new("Frame")
     dot.Size = UDim2.new(0, 12, 0, 12)
@@ -104,7 +100,6 @@ for i, col in ipairs({Color3.fromRGB(255,95,87), Color3.fromRGB(254,188,46), Col
     Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
 end
 
--- Bouton fermer (X)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Text = "×"
 CloseBtn.Size = UDim2.new(0, 28, 0, 28)
@@ -114,11 +109,8 @@ CloseBtn.TextColor3 = C.Muted
 CloseBtn.TextSize = 20
 CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.Parent = Titlebar
-CloseBtn.MouseButton1Click:Connect(function()
-    Main.Visible = false
-end)
+CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false end)
 
--- Header logo
 local Header = Instance.new("Frame")
 Header.Size = UDim2.new(1, 0, 0, 60)
 Header.Position = UDim2.new(0, 0, 0, 36)
@@ -134,7 +126,7 @@ LogoBox.BorderSizePixel = 0
 LogoBox.Parent = Header
 Instance.new("UICorner", LogoBox).CornerRadius = UDim.new(0, 8)
 local LogoText = Instance.new("TextLabel")
-LogoText.Text = "SQL"
+LogoText.Text = "ZIZI"
 LogoText.Size = UDim2.new(1,0,1,0)
 LogoText.BackgroundTransparency = 1
 LogoText.TextColor3 = C.White
@@ -143,7 +135,7 @@ LogoText.Font = Enum.Font.GothamBold
 LogoText.Parent = LogoBox
 
 local PanelTitle = Instance.new("TextLabel")
-PanelTitle.Text = "SQL PANEL"
+PanelTitle.Text = "ZIZI PANEL"
 PanelTitle.Position = UDim2.new(0, 72, 0, 12)
 PanelTitle.Size = UDim2.new(1, -80, 0, 22)
 PanelTitle.BackgroundTransparency = 1
@@ -178,7 +170,6 @@ TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 TabLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 TabLayout.Parent = TabBar
 
--- Zone de contenu
 local ContentArea = Instance.new("Frame")
 ContentArea.Size = UDim2.new(1, 0, 1, -128)
 ContentArea.Position = UDim2.new(0, 0, 0, 128)
@@ -462,9 +453,9 @@ MakeToggle(PP, "Fly", false, function(v)
     if not v then
         local char = LocalPlayer.Character
         if char then
-            local bp = char:FindFirstChild("SQLFlyBP")
+            local bp = char:FindFirstChild("ZiziFlyBP")
             if bp then bp:Destroy() end
-            local bg = char:FindFirstChild("SQLFlyBG")
+            local bg = char:FindFirstChild("ZiziFlyBG")
             if bg then bg:Destroy() end
         end
     end
@@ -503,7 +494,6 @@ MakeButton(PG, "Rejoin Server", C.Blue, function()
     tp:Teleport(game.PlaceId, LocalPlayer)
 end, 10)
 MakeButton(PG, "Copy Server ID", C.Surface, function()
-    -- Met l'ID en local
     game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
         Text = "Server JobId: " .. game.JobId,
         Color = Color3.fromRGB(74, 158, 255),
@@ -594,7 +584,7 @@ MakeToggle(PT, "Spam Chat", false, function(v)
         task.spawn(function()
             while State.SpamChat do
                 game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
-                LocalPlayer:Chat("SQL Panel 👾")
+                LocalPlayer:Chat("Zizi Panel 👾")
                 task.wait(1)
             end
         end)
@@ -621,7 +611,7 @@ local function CreateESP(plr)
     if not root then return end
 
     local billboard = Instance.new("BillboardGui")
-    billboard.Name = "SQLESP"
+    billboard.Name = "ZiziESP"
     billboard.Size = UDim2.new(0, 120, 0, 40)
     billboard.StudsOffset = Vector3.new(0, 3, 0)
     billboard.AlwaysOnTop = true
@@ -679,7 +669,7 @@ MakeSlider(PE, "ESP Range", 50, 2000, 500, "st", function(v) State.ESPRange = v 
 -- ===================== PAGE OTHER =====================
 local PO = TabPages["Other"]
 MakeLabel(PO, "   INTERFACE", 1)
-MakeToggle(PO, "Key Bind (K)", true, function(v) end, 2)
+MakeToggle(PO, "Key Bind (P)", true, function(v) end, 2)
 MakeToggle(PO, "Notifications", true, function(v) end, 3)
 MakeDivider(PO, 4)
 MakeLabel(PO, "   DANGER", 5)
@@ -708,15 +698,15 @@ local function CenterText(parent, text, size, color, order)
 end
 
 CenterText(PC, "Developed by", 10, C.Muted, 1)
-CenterText(PC, "SQL TEAM", 22, C.Blue, 2)
+CenterText(PC, "ZIZI TEAM", 22, C.Blue, 2)
 CenterText(PC, "Premium Script & UI", 12, C.Muted, 3)
 MakeDivider(PC, 4)
 CenterText(PC, "Discord", 11, C.Muted, 5)
-CenterText(PC, "discord.gg/sqlpanel", 13, C.Blue, 6)
+CenterText(PC, "discord.gg/zizipanel", 13, C.Blue, 6)
 MakeDivider(PC, 7)
 CenterText(PC, "Version", 11, C.Muted, 8)
 CenterText(PC, "v2.1 — Build 2026", 13, C.White, 9)
-CenterText(PC, "© 2026 SQL Panel — All rights reserved", 10, C.Muted, 10)
+CenterText(PC, "© 2026 Zizi Panel — All rights reserved", 10, C.Muted, 10)
 
 -- ===================== DRAG =====================
 local dragging, dragStart, startPos
@@ -748,7 +738,6 @@ UserInputService.InputBegan:Connect(function(input, gpe)
 end)
 
 -- ===================== LOOPS =====================
--- Noclip loop
 RunService.Stepped:Connect(function()
     if State.Noclip then
         local char = LocalPlayer.Character
@@ -762,7 +751,6 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- Fly loop
 local flyBP, flyBG
 RunService.Heartbeat:Connect(function()
     local char = LocalPlayer.Character
@@ -774,7 +762,7 @@ RunService.Heartbeat:Connect(function()
     if State.Fly then
         if not flyBP or not flyBP.Parent then
             flyBP = Instance.new("BodyPosition")
-            flyBP.Name = "SQLFlyBP"
+            flyBP.Name = "ZiziFlyBP"
             flyBP.MaxForce = Vector3.new(1e5,1e5,1e5)
             flyBP.P = 1e4
             flyBP.D = 500
@@ -783,7 +771,7 @@ RunService.Heartbeat:Connect(function()
         end
         if not flyBG or not flyBG.Parent then
             flyBG = Instance.new("BodyGyro")
-            flyBG.Name = "SQLFlyBG"
+            flyBG.Name = "ZiziFlyBG"
             flyBG.MaxTorque = Vector3.new(1e5,1e5,1e5)
             flyBG.P = 1e4
             flyBG.D = 100
@@ -806,13 +794,11 @@ RunService.Heartbeat:Connect(function()
         if hum then hum.PlatformStand = false end
     end
 
-    -- Anti-void
     if State.AntiVoid and root.Position.Y < -100 then
         root.CFrame = CFrame.new(0, 10, 0)
     end
 end)
 
--- Infinite jump
 UserInputService.JumpRequest:Connect(function()
     if State.InfiniteJump then
         local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
@@ -820,4 +806,4 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
-print("[SQL Panel] Chargé avec succès ! Appuie sur K pour ouvrir/fermer.")
+print("[Zizi Panel] Chargé avec succès ! Appuie sur P pour ouvrir/fermer.")
