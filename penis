@@ -1,0 +1,114 @@
+-- [[ ZIZI PANEL V2.1 - FIX 2026 ]] --
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+
+-- ===================== SETTINGS =====================
+local KEYBIND = Enum.KeyCode.P  -- Touche pour ouvrir/fermer
+
+local State = {
+    Speed = 16,
+    FlySpeed = 50,
+    JumpPower = 50,
+    Noclip = false,
+    Fly = false,
+    InfiniteJump = false,
+    AntiVoid = false,
+    NoFog = false,
+    Fullbright = false,
+    NoShadows = false,
+    TimeOfDay = 12,
+    ESPEnabled = false,
+    ESPRange = 500,
+    SpamChat = false,
+}
+
+-- ===================== GUI SETUP =====================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ZiziPanel_Fixed"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Sécurité pour l'affichage (évite les détections simples)
+if gethui then
+    ScreenGui.Parent = gethui()
+elseif game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
+    ScreenGui.Parent = game:GetService("CoreGui")
+else
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+local C = {
+    BG       = Color3.fromRGB(30, 30, 30),
+    BG2      = Color3.fromRGB(26, 26, 26),
+    Surface  = Color3.fromRGB(42, 42, 42),
+    Blue     = Color3.fromRGB(74, 158, 255),
+    White    = Color3.fromRGB(220, 220, 220),
+    Muted    = Color3.fromRGB(100, 100, 100),
+    Red      = Color3.fromRGB(231, 76, 60),
+    Toggle_ON  = Color3.fromRGB(74, 158, 255),
+    Toggle_OFF = Color3.fromRGB(60, 60, 60),
+}
+
+-- ===================== MAIN FRAME =====================
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 400, 0, 500)
+Main.Position = UDim2.new(0.5, -200, 0.5, -250)
+Main.BackgroundColor3 = C.BG
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
+
+local Titlebar = Instance.new("Frame")
+Titlebar.Size = UDim2.new(1, 0, 0, 36)
+Titlebar.BackgroundColor3 = C.BG2
+Titlebar.Parent = Main
+Instance.new("UICorner", Titlebar).CornerRadius = UDim.new(0, 10)
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Text = "ZIZI PANEL v2.1"
+TitleLabel.Size = UDim2.new(1, 0, 1, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.TextColor3 = C.White
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Parent = Titlebar
+
+-- ===================== NAVIGATION =====================
+local ContentArea = Instance.new("ScrollingFrame")
+ContentArea.Size = UDim2.new(1, -20, 1, -50)
+ContentArea.Position = UDim2.new(0, 10, 0, 45)
+ContentArea.BackgroundTransparency = 1
+ContentArea.BorderSizePixel = 0
+ContentArea.ScrollBarThickness = 4
+ContentArea.Parent = Main
+
+local UIList = Instance.new("UIListLayout")
+UIList.Parent = ContentArea
+UIList.Padding = UDim.new(0, 8)
+
+-- ===================== FONCTIONS UTILES =====================
+local function CreateToggle(name, default, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 35)
+    btn.BackgroundColor3 = default and C.Toggle_ON or C.Toggle_OFF
+    btn.Text = name .. (default and " : ON" or " : OFF")
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    btn.Parent = ContentArea
+    Instance.new("UICorner", btn)
+
+    btn.MouseButton1Click:Connect(function()
+        State[name] = not State[name]
+        btn.BackgroundColor3 = State[name] and C.Toggle_ON or C.Toggle_OFF
+        btn.Text = name .. (State[name] and " : ON" or " : OFF")
+        callback(State[name])
+    end)
+end
+
+local function CreateSlider(name, min, max, default, callback)
+    local frame = Instance.new("Frame")
+    frame.Size
