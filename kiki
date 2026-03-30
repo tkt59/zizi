@@ -1,15 +1,17 @@
--- [[ ZIZI PANEL V2.1 - FIX 2026 ]] --
-
+-- ===================== ZIZI PANEL V2.1 (FIXED) =====================
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
+
+-- Attente du personnage
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- ===================== SETTINGS =====================
-local KEYBIND = Enum.KeyCode.P  -- Touche pour ouvrir/fermer
-
+-- ===================== SETTINGS & ÉTAT =====================
+local KEYBIND = Enum.KeyCode.P
 local State = {
     Speed = 16,
     FlySpeed = 50,
@@ -23,171 +25,76 @@ local State = {
     NoShadows = false,
     TimeOfDay = 12,
     ESPEnabled = false,
+    Chams = false,
+    NameTags = false,
+    HealthBar = false,
     ESPRange = 500,
     SpamChat = false,
+    FakeAdmin = false,
 }
 
--- ===================== GUI SETUP =====================
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ZiziPanel_Fixed"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Sécurité pour l'affichage (évite les détections simples)
-if gethui then
-    ScreenGui.Parent = gethui()
-elseif game:GetService("CoreGui"):FindFirstChild("RobloxGui") then
-    ScreenGui.Parent = game:GetService("CoreGui")
-else
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
-
+-- ===================== COULEURS =====================
 local C = {
     BG       = Color3.fromRGB(30, 30, 30),
     BG2      = Color3.fromRGB(26, 26, 26),
+    BG3      = Color3.fromRGB(37, 37, 37),
     Surface  = Color3.fromRGB(42, 42, 42),
+    Border   = Color3.fromRGB(50, 50, 50),
     Blue     = Color3.fromRGB(74, 158, 255),
     White    = Color3.fromRGB(220, 220, 220),
     Muted    = Color3.fromRGB(100, 100, 100),
     Red      = Color3.fromRGB(231, 76, 60),
+    Green    = Color3.fromRGB(39, 174, 96),
     Toggle_ON  = Color3.fromRGB(74, 158, 255),
     Toggle_OFF = Color3.fromRGB(60, 60, 60),
 }
 
--- ===================== MAIN FRAME =====================
+-- ===================== GUI BASE =====================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ZiziPanel"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Parentage sécurisé
+if gethui then
+    ScreenGui.Parent = gethui()
+elseif game:GetService("CoreGui") then
+    pcall(function() ScreenGui.Parent = game:GetService("CoreGui") end)
+end
+if not ScreenGui.Parent then
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+-- ===================== FRAME PRINCIPALE =====================
 local Main = Instance.new("Frame")
 Main.Size = UDim2.new(0, 400, 0, 500)
 Main.Position = UDim2.new(0.5, -200, 0.5, -250)
 Main.BackgroundColor3 = C.BG
 Main.BorderSizePixel = 0
+Main.ClipsDescendants = true
 Main.Parent = ScreenGui
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 10)
 
 local Titlebar = Instance.new("Frame")
 Titlebar.Size = UDim2.new(1, 0, 0, 36)
 Titlebar.BackgroundColor3 = C.BG2
+Titlebar.BorderSizePixel = 0
 Titlebar.Parent = Main
-Instance.new("UICorner", Titlebar).CornerRadius = UDim.new(0, 10)
 
 local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Text = "ZIZI PANEL v2.1"
+TitleLabel.Text = "Zizi Panel"
 TitleLabel.Size = UDim2.new(1, 0, 1, 0)
 TitleLabel.BackgroundTransparency = 1
-TitleLabel.TextColor3 = C.White
+TitleLabel.TextColor3 = C.Muted
+TitleLabel.TextSize = 13
 TitleLabel.Font = Enum.Font.GothamBold
 TitleLabel.Parent = Titlebar
 
--- ===================== NAVIGATION =====================
-local ContentArea = Instance.new("ScrollingFrame")
-ContentArea.Size = UDim2.new(1, -20, 1, -50)
-ContentArea.Position = UDim2.new(0, 10, 0, 45)
-ContentArea.BackgroundTransparency = 1
-ContentArea.BorderSizePixel = 0
-ContentArea.ScrollBarThickness = 4
-ContentArea.Parent = Main
-
-local UIList = Instance.new("UIListLayout")
-UIList.Parent = ContentArea
-UIList.Padding = UDim.new(0, 8)
-
--- ===================== FONCTIONS UTILES =====================
-local function CreateToggle(name, default, callback)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.BackgroundColor3 = default and C.Toggle_ON or C.Toggle_OFF
-    btn.Text = name .. (default and " : ON" or " : OFF")
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.GothamBold
-    btn.Parent = ContentArea
-    Instance.new("UICorner", btn)
-
-    btn.MouseButton1Click:Connect(function()
-        State[name] = not State[name]
-        btn.BackgroundColor3 = State[name] and C.Toggle_ON or C.Toggle_OFF
-        btn.Text = name .. (State[name] and " : ON" or " : OFF")
-        callback(State[name])
-    end)
-end
-
-local function CreateSlider(name, min, max, default, callback)
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 0, 40)
-    frame.BackgroundColor3 = C.Surface
-    frame.Parent = ContentArea
-    Instance.new("UICorner", frame)
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Text = name .. " : " .. default
-    lbl.Size = UDim2.new(1, 0, 1, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.TextColor3 = Color3.new(1,1,1)
-    lbl.Font = Enum.Font.GothamBold
-    lbl.Parent = frame
-
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local val = math.random(min, max) -- Slider simplifié pour la stabilité
-            lbl.Text = name .. " : " .. val
-            callback(val)
-        end
-    end)
-end
-
--- ===================== REMPLISSAGE DU PANEL =====================
-CreateSlider("WalkSpeed", 16, 250, 16, function(v)
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = v
-    end
-end)
-
-CreateSlider("JumpPower", 50, 500, 50, function(v)
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.JumpPower = v
-    end
-end)
-
-CreateToggle("Noclip", false, function(v) State.Noclip = v end)
-CreateToggle("InfiniteJump", false, function(v) State.InfiniteJump = v end)
-CreateToggle("Fullbright", false, function(v)
-    game:GetService("Lighting").Brightness = v and 2 or 1
-    game:GetService("Lighting").ClockTime = v and 14 or 12
-end)
-
--- ===================== LOGIQUE BOUCLES =====================
-RunService.Stepped:Connect(function()
-    if State.Noclip and LocalPlayer.Character then
-        for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then part.CanCollide = false end
-        end
-    end
-end)
-
-UserInputService.JumpRequest:Connect(function()
-    if State.InfiniteJump and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
-    end
-end)
-
--- Dragging
-local dragging, dragStart, startPos
-Titlebar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true; dragStart = input.Position; startPos = Main.Position
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-end)
-
--- Toggle Menu
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if not gpe and input.KeyCode == KEYBIND then Main.Visible = not Main.Visible end
-end)
-
-print("[Zizi Panel] Fix chargé ! Appuie sur P.")
+-- Petits points de déco (style Mac)
+for i, col in ipairs({Color3.fromRGB(255,95,87), Color3.fromRGB(254,188,46), Color3.fromRGB(40,200,64)}) do
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(0, 12, 0, 12)
+    dot.Position = UDim2.new(0, 8 + (i-1)*16, 0.5, -6)
+    dot.BackgroundColor3 = col
+    dot.BorderSizePixel = 0
+    dot.Parent = Title
